@@ -139,7 +139,7 @@ class EntitiesCalendarData:
 	@Throttle(MIN_TIME_BETWEEN_UPDATES)
 	def update(self):
 		"""Get the latest data."""
-		self._entities = timetree_object.get_upcoming_events(self._calendar.id, 'Europe/Berlin', 7).data
+		self._entities = timetree_object.get_upcoming_events(self._calendar.id, 'Europe/Copenhagen', 7).data
 		events = []
 		for entity in self._entities:
 			start = entity.attributes.start_at
