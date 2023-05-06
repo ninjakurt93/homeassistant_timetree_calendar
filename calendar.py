@@ -3,13 +3,14 @@ from datetime import datetime, time, timedelta
 import logging
 import sys
 import os
+import voluptuous as vol
 sys.path.append(os.getcwd())
 from .timetree_sdk import TimeTreeApi
+from homeassistant.components.calendar import CalendarEntity
+from homeassistant.helpers.template import DATE_STR_FORMAT
+from homeassistant.util import Throttle, dt
+import homeassistant.helpers.config_validation as cv
 
-
-import voluptuous as vol
-
-from homeassistant.components.calendar import PLATFORM_SCHEMA, CalendarEventDevice
 from homeassistant.const import (
 	CONF_ID, 
 	CONF_NAME,
@@ -17,12 +18,8 @@ from homeassistant.const import (
 	STATE_UNKNOWN,
 	STATE_UNAVAILABLE,
 )
-import homeassistant.helpers.config_validation as cv
-from homeassistant.helpers.template import DATE_STR_FORMAT
-from homeassistant.util import Throttle, dt
 
 _LOGGER = logging.getLogger(__name__)
-
 
 MIN_TIME_BETWEEN_UPDATES = timedelta(minutes=15)
 timetree_object = False
@@ -43,7 +40,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 	add_entities(calendar_devices)
 	
 
-class EntitiesCalendarDevice(CalendarEventDevice):
+class EntitiesCalendarDevice(CalendarEntity):
 	"""A device for getting calendar events from entities."""
 
 	def __init__(
@@ -79,7 +76,7 @@ class EntitiesCalendarDevice(CalendarEventDevice):
 		return await self.data.async_get_events(hass, start_date, end_date)
 
 	@property
-	def device_state_attributes(self):
+	def extra_state_attributes(self):
 		"""Return the device state attributes."""
 		if self.data.event is None:
 			# No tasks, we don't REALLY need to show anything.
@@ -167,4 +164,6 @@ class EntitiesCalendarData:
 		next_event = None
 		if events:
 		  next_event = events[0]
+		
 		self.event = next_event
+		
